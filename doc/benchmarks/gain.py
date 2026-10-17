@@ -7,9 +7,10 @@ P'P is a 2x2 polynomial matrix of degree 2n in n variables, dense in the
 variables. Since P is affine in each x_i, lambda_max(P'P) = ||P||^2 is convex
 in each x_i, so the maximum is attained at a vertex of the box: vertex
 enumeration gives the exact value for moderate n. Since M(-x) = D M(x) D with
-D = diag(1, -1), the gain is invariant under x -> -x; all methods restrict
-x_1 to [0, 1] (no loss of generality), which makes the maximizer unique so
-that it can be read off the pseudo-moments.
+D = diag(1, -1), the gain is invariant under x -> -x. The lifted relaxations
+restrict x_1 to [0, 1] (no loss of generality), which makes the maximizer
+unique so that it can be read off the pseudo-moments. The baselines keep the
+full box, whose sign symmetry term sparsity exploits (Miller, Wang & Guo).
 
 Methods (one run per call; prints one JSON line):
 
@@ -92,7 +93,7 @@ def main():
     if method in ("dense", "ts1"):
         F, x = dense_matrix(n)
         ts = "MD" if method == "ts1" else None
-        box = [x[0] * (1 - x[0])] + [1 - xi**2 for xi in x[1:]]
+        box = [1 - xi**2 for xi in x]
         res, total, solve = timed(lambda: psp.pmi_optimize(
             F * (-1.0), ineqs=box, order=order or n,
             ts=ts, ts_order=1 if ts else None, solver=solver, **solver_options(solver)))

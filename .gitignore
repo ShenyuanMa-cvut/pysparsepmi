@@ -7,3 +7,32 @@ dist/
 .claude/settings.local.json
 .venv/
 venv/
+
+# LaTeX build products
+*.pdf
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.nav
+*.snm
+*.vrb
+*.run.xml
+*-blx.bib
+*.bcf
+*.idx
+*.ilg
+*.ind
+*.xdv
+*.dvi
+
+# macOS
+.DS_Store

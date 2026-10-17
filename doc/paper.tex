@@ -31,10 +31,10 @@
 
 \begin{document}
 
-\title{Combining matrix, correlative, term and composition structure in
+\title{Combining state lifting with matrix and correlative sparsity in
 moment-SOS relaxations of polynomial matrix inequalities}
 
-\titlerunning{Combining structures in relaxations of PMIs}
+\titlerunning{State lifting and sparsity in relaxations of PMIs}
 
 \author{Jakub Mare\v{c}ek}
 
@@ -53,8 +53,8 @@ Scherer and Hol, and Kojima solves polynomial matrix inequalities (PMIs) and
 polynomial matrix optimization problems globally, but its semidefinite
 programs grow as $m\binom{n+d}{d}$ for an $m\times m$ PMI in $n$ variables
 at relaxation order~$d$. Chordal sparsity of the matrix, correlative sparsity
-of the variables and term sparsity reduce this size, but none of them helps
-when every entry of the matrix depends on every variable. For scalar
+of the variables and term sparsity reduce this size, but when every entry of
+the matrix depends on every variable, the blocks still grow rapidly with~$n$. For scalar
 problems, Balada Gaggioli, Henrion and Korda showed that composition and
 low-rank structure can then be exploited by lifting intermediate states to
 new variables. We extend their state-lifting hierarchies to matrix-valued
@@ -65,10 +65,10 @@ combination by a simple observation: the techniques restrict different
 factors of the index set of the Gram matrix of a matrix-SOS certificate, so
 that their savings multiply. All of this is implemented in \code{pysparsepmi}, an open-source Python package
 with a CVXPY-style modelling interface, which also recovers and certifies
-minimizers from the pseudo-moments. On PMIs of degree~$80$ in $40$
+minimizers from the pseudo-moments. On a PMI of degree~$80$ in $40$
 variables, where the dense relaxation would need a Gram matrix of order
-$10^{23}$, the combined relaxations are tight and are solved in about a
-minute.
+$10^{23}$, the lifted relaxations are tight, and the push-forward one is
+solved in 74~seconds.
 \keywords{Polynomial matrix inequalities \and Moment-SOS hierarchy \and
 Chordal sparsity \and Correlative sparsity \and Term sparsity \and State
 lifting \and Semidefinite programming}
@@ -118,7 +118,7 @@ matrices \cite{ZhengFantuzzi2023}.
 variables \cite{Waki2006,Lasserre2006}, also for polynomial SDPs and matrix
 constraints \cite{KojimaMuramatsu2009,NieQuTangZhang2026}.
 (iii) \emph{Term sparsity} block-diagonalizes Gram matrices along the
-supports of the data \cite{TSSOS2021,ChordalTSSOS2021,CSTSSOS2022}; it has
+supports of the data \cite{TSSOS2021,CSTSSOS2022}; it has
 been used for PMIs in structural design \cite{HandaTyburecKocvara2025}.
 Miller, Wang and Guo \cite{MillerWangGuo2026} extended term, correlative and
 matrix sparsity to PMO, combined them in TSSOS, and showed that correlative
@@ -132,9 +132,9 @@ variables. This creates correlative sparsity where the original problem has
 none, with clique sizes independent of~$n$; so far only for scalar
 objectives.
 
-PMIs that are dense in the variables, such as products of
-parameter-dependent matrices, are out of reach of (i)--(iii). Our
-contributions are:
+For PMIs whose entries depend on all variables, such as products of
+parameter-dependent matrices, (i)--(iii) leave PSD blocks that grow rapidly
+with~$n$. Our contributions are:
 \begin{enumerate}
 \item State lifting for PMIs (Sect.~\ref{sec:lifting}): matrix-valued
 terminal maps in both state-lifting hierarchies of \cite{BGHK2026}, combined
@@ -183,7 +183,7 @@ $C$. Replacing every $S_j$ in \eqref{eq:sh} by
 $\sum_k E_{C_k}^\top S_{j,k}E_{C_k}$, $S_{j,k}\in\SOS^{|C_k|}[x]$, gives
 blocks of order $|C_k|\,\sz{n}{d}$. This is the polynomial analogue of the
 decomposition of PSD matrices with chordal sparsity
-\cite{AglerEtAl1988,VandenbergheAndersen2015};
+\cite{VandenbergheAndersen2015};
 Zheng and Fantuzzi \cite{ZhengFantuzzi2023} proved the corresponding
 sparse Positivstellens\"atze, in particular a sparse matrix version of
 Putinar's theorem for PMIs strictly feasible on Archimedean sets.
@@ -197,7 +197,7 @@ receives a multiplier in the variables of a clique that contains its own
 converges under the running intersection property \cite{Lasserre2006}; for
 matrix-valued $F$ it may not \cite[Ex.~5.1]{MillerWangGuo2026}.
 
-\emph{Term sparsity.} TSSOS \cite{TSSOS2021,ChordalTSSOS2021} builds a
+\emph{Term sparsity.} TSSOS \cite{TSSOS2021} builds a
 graph on the Gram index set whose edges are the pairs of monomials whose
 product lies in the (extended) support, alternates support extension and
 chordal extension, and keeps one PSD block per clique; the bounds increase
@@ -231,10 +231,9 @@ $\cI=\N^n_d\times[m]$:
 $S_0(x)=\sum_{(\alpha,i),(\beta,k)\in\cI}Q_{(\alpha,i),(\beta,k)}\,
 x^{\alpha+\beta}e_ie_k^\top$. A family $\cB$ of subsets of $\cI$ defines
 the cone of SOS matrices with Gram matrices $Q=\sum_{B\in\cB}P_B^\top
-Q_BP_B$, $Q_B\succeq0$, where $P_B$ selects the rows in~$B$. This cone is
-contained in $\SOS^m[x]$, so any family gives a valid lower bound; the
-families differ in the sizes $|B|$, which govern the cost of the SDP, and in
-what is known about convergence. With $\N^V_d$ the exponents of degree at
+Q_BP_B$, $Q_B\succeq0$, where $P_B$ selects the rows in~$B$. Every such cone
+lies in $\SOS^m[x]$, so every family gives a valid bound; families differ
+in the sizes $|B|$, which govern the cost, and in their convergence. With $\N^V_d$ the exponents of degree at
 most $d$ supported on $V\subseteq[n]$:
 \begin{align*}
 \cB_{\rm dense}&=\{\N^n_d\times[m]\}, &
@@ -363,8 +362,7 @@ scalar pseudo-moments $y_\gamma=\operatorname{tr}Y_\gamma/
 \operatorname{tr}Y_0$. If the optimal moments are those of a point mass at
 $x^\star$ with weight $uu^\top$, $u$ a unit eigenvector of $F(x^\star)$ for
 $\lmin$, then $y_{e_j}=x^\star_j$; several minimizers are extracted from a
-flat moment matrix \cite{CurtoFialkow2000} as in
-\cite{HenrionLasserre2005}. In lifted relaxations, the moments of the
+flat moment matrix as in \cite{HenrionLasserre2005}. In lifted relaxations, the moments of the
 original variables are read off the lifted (SL-chord) or per-stage (SL-push)
 measures. Whatever the relaxation, a feasible $\hat x$ with
 $\lmin(F(\hat x))-\lambda_d\le\varepsilon$ certifies that $\hat x$ is
@@ -385,8 +383,8 @@ returns a matrix-SOS constraint with the chordal decomposition (for scalars,
 an SOS constraint with correlative sparsity, as YALMIP's \code{sos.csp}
 \cite{Lofberg2009}); \code{Problem(objective, constraints).solve()}
 mirrors \code{cvxpy.Problem}. High-level functions cover~\eqref{eq:pmo}:
-\code{pmi\_optimize(F, ineqs, eqs, order, cs, ts, ts\_order)} with scalar
-and matrix constraints, matrix sparsity (default), correlative sparsity
+\code{pmi\_optimize} with scalar and matrix inequalities (\code{ineqs}),
+equalities (\code{eqs}), matrix sparsity (default), correlative sparsity
 (\code{cs=True}) and term sparsity (\code{ts="block"} or \code{"MD"}, as in
 TSSOS); \code{sos\_lower\_bound} for scalar problems; and
 \code{composition\_lower\_bound(maps, box, method)} for chains
@@ -398,29 +396,29 @@ the worst-case gain of Sect.~\ref{sec:gain}:
 
 \begin{lstlisting}
 import pysparsepmi as psp
-def congruence(s, x):           # M(x)' S M(x), S = [[s0, s1], [s1, s2]]
-    M = [[0.9, 0.5 * x], [0.3 * x, 0.8]]
+M = lambda x: [[0.9, 0.5 * x], [0.3 * x, 0.8]]
+def last(s, x):    # M(x)' S M(x), S stored as s = (s11, s12, s22)
     S = [[s[0], s[1]], [s[1], s[2]]] if s else [[1, 0], [0, 1]]
-    return [[sum(M[c][a] * S[c][e] * M[e][b] for c in (0, 1) for e in (0, 1))
-             for b in (0, 1)] for a in (0, 1)]
-def step(s, x):                 # lifted state: the 3 entries of S_i
-    R = congruence(s, x)
-    return [R[0][0], R[0][1], R[1][1]]
-res = psp.composition_lower_bound([step] * (n - 1) + [congruence],
-        box=[(0, 1)] + [1] * (n - 1), order=3, method="push", sense="max")
-x = res.minimizer()             # maximizer from the pseudo-moments
+    A = M(x)
+    return [[sum(A[c][a] * S[c][e] * A[e][b] for c in (0, 1)
+                 for e in (0, 1)) for b in (0, 1)] for a in (0, 1)]
+def step(s, x):    # lifted state: the three entries of S_i
+    R = last(s, x); return [R[0][0], R[0][1], R[1][1]]
+res = psp.composition_lower_bound(
+    [step] * (n - 1) + [last], box=[(0, 1)] + [1] * (n - 1),
+    order=3, method="push", sense="max")
+x = res.minimizer()    # maximizer from the pseudo-moments
 print(res.value, res.gap(x), res.max_violation(x))
 \end{lstlisting}
 
-Three implementation details matter. Chordal extensions use a greedy
-minimum-degree order unless an elimination order is prescribed, as for the
-lifted chains, where the greedy order can produce larger cliques. Gram bases
-are pruned by the diagonal-consistency test used by YALMIP
-\cite{Lofberg2009}. Lifted states are rescaled by their interval bounds,
-$s_i=D_iu_i$; this exact change of variables keeps the data of long chains
-of order one and was essential for numerical accuracy. The package is
-available at \url{https://github.com/jmarecek/pysparsepmi} with tests and
-the scripts that produce all results below.
+Chordal extensions use a greedy minimum-degree order unless an elimination
+order is prescribed, as for lifted chains, where the greedy order can give
+larger cliques. Gram bases are pruned by the diagonal-consistency test of
+YALMIP \cite{Lofberg2009}. Lifted states are rescaled by their interval
+bounds, $s_i=D_iu_i$; this exact change of variables keeps the data of long
+chains of order one and was essential for accuracy. The package, its tests
+and the scripts behind all results below are available at
+\url{https://github.com/jmarecek/pysparsepmi}.
 
 % ----------------------------------------------------------------------
 \section{Computational experiments}
@@ -428,13 +426,14 @@ the scripts that produce all results below.
 
 All runs used an Apple M2 Pro (32\,GB), Python 3.9, CVXPY 1.7.5 and the
 interior-point solver Clarabel 0.11.1 \cite{Clarabel2026} with tolerances
-$10^{-10}$, one process per run, a limit of 30 minutes and 12\,GB.
+$10^{-10}$, one process per run, a limit of 30 minutes and 16\,GB.
 The baselines---the dense relaxation \eqref{eq:sh} (as in GloptiPoly or
 TSSOS without sparsity), matrix sparsity \cite{ZhengFantuzzi2023} and the
 first step of term sparsity with minimum-degree chordal extension
 (\code{TS="MD"} in TSSOS) \cite{MillerWangGuo2026}---run through the same
-code and solver, so the comparison isolates the relaxations. Times include
-the construction of the model in Python.
+code and solver, so the comparison isolates the relaxations. Times are in
+seconds on a monotonic clock and include the construction of the model in
+Python.
 
 \subsection{Worst-case gain of a product of matrices}
 \label{sec:gain}
@@ -448,15 +447,36 @@ correlative sparsity applies: the dense relaxation has a block of order
 $2\binom{2n}{n}$. Since $P$ is affine in each $x_i$,
 $\lmax(P^\top P)=\|P\|^2$ is convex in each $x_i$, so $\lambda^\star$ is
 attained at a vertex, and enumeration gives $\lambda^\star$ for $n\le 20$.
-As $M(-x)=DM(x)D$ with $D=\mathrm{diag}(1,-1)$, all relaxations use
+As $M(-x)=DM(x)D$ with $D=\mathrm{diag}(1,-1)$, the lifted relaxations use
 $x_1\in[0,1]$, which leaves $\lambda^\star$ unchanged and makes the maximizer
-unique. The chain lifts the three entries of
+unique; the baselines keep the full box, whose sign symmetry term sparsity
+exploits \cite{MillerWangGuo2026}. The chain lifts the three entries of
 $S_i=M(x_i)^\top S_{i-1}M(x_i)$, $S_0=I$, with the matrix-valued terminal map
 $S_n$ (listing in Sect.~\ref{sec:software}), so $r_i=3$ and $\rho=7$.
 
-%%GAIN-TABLE%%
+\begin{table}[t]
+\caption{Worst-case gain (Sect.~\ref{sec:gain}): $\lambda^\star$ by vertex
+enumeration ($^\dagger$: for $n>20$, the value at the recovered maximizer
+rounded to the nearest vertex), largest PSD block, total time in seconds and
+relative gap $(\text{bound}-\lambda^\star)/\lambda^\star$. The dense block
+$2\binom{2n}{n}$ is listed also where the relaxation was not attempted.
+Dense and TS bounds are tight whenever solved. $^*$: Clarabel reported
+reduced accuracy.}
+\label{tab:gain}
+\centering\footnotesize\setlength{\tabcolsep}{1.6pt}
+\input{tables/gain}
+\end{table}
 
-%%GAIN-DISCUSSION%%
+Table~\ref{tab:gain} shows the effect of lifting. The dense relaxation and
+term sparsity are tight but stop at $n=4$: at $n=5$ the dense block has
+order $504$ and both exceed 30 minutes. The lifted relaxations keep blocks
+of order $30$, $70$ and $72$ for every $n$, and their time grows about
+linearly. SL-push of order~$3$ and SL-chord of order~$2$ are tight for all
+$n$; SL-push bounds the gain of a PMI of degree~$80$ in $40$ variables in
+74\,s, where the dense block would have order $2\cdot10^{23}$. For $n>20$
+tightness is certified by the recovered maximizer $\hat x\approx(1,\dots,1)$
+(Sect.~\ref{sec:moments}). SL-push of order~$2$ is the cheapest, but its gap
+grows with~$n$.
 
 \subsection{A banded low-rank PMI}
 \label{sec:banded}
@@ -495,6 +515,13 @@ PMO \cite{MillerWangGuo2026}; tighter state enclosures than interval
 arithmetic; interfaces to SDP solvers that exploit low-rank solutions
 \cite{HabibiKocvaraStingl2024}; and a vectorized model construction, which
 dominates the run time of small instances.
+
+% Springer requires declarations; fill in before submission, e.g.:
+% \section*{Declarations}
+% \textbf{Funding} ... \textbf{Conflict of interest} The author declares no
+% conflict of interest. \textbf{Code availability} The code and the scripts
+% reproducing all results are available at
+% \url{https://github.com/jmarecek/pysparsepmi}.
 
 \bibliographystyle{spmpsci}
 \bibliography{references}

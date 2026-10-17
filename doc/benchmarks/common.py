@@ -39,9 +39,11 @@ def solver_options(solver):
 
 
 def timed(fn):
-    t0 = time.time()
+    # perf_counter does not advance while the machine sleeps (macOS:
+    # mach_absolute_time), so the measured time is pure computation
+    t0 = time.perf_counter()
     res = fn()
-    total = time.time() - t0
+    total = time.perf_counter() - t0
     stats = res.problem.compile().solver_stats
     solve = getattr(stats, "solve_time", None)
     return res, total, solve

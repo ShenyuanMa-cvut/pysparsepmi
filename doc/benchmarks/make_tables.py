@@ -3,6 +3,10 @@ import json
 import math
 import os
 
+import numpy as np
+
+from gain import objective
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "tables")
 
@@ -12,9 +16,10 @@ def load():
     with open(os.path.join(HERE, "results.jsonl")) as f:
         for line in f:
             r = json.loads(line)
-            key = (r["bench"], r["n"], r.get("m"), r["method"], r.get("order"))
+            order = r.get("order") if r["method"] in ("push", "chord") else None
             if r["bench"] == "banded":
-                key = (r["bench"], r["n"], r.get("m"), r["method"], None)
+                order = None
+            key = (r["bench"], r["n"], r.get("m"), r["method"], order)
             recs[key] = r  # the last run of a configuration wins
     return recs
 
@@ -23,7 +28,9 @@ def sci(v, digits=1):
     if v == 0:
         return "0"
     e = int(math.floor(math.log10(abs(v))))
-    m = v / 10 ** e
+    m = round(v / 10 ** e, digits)
+    if abs(m) >= 10:
+        m, e = m / 10, e + 1
     return r"$%.*f{\cdot}10^{%d}$" % (digits, m, e)
 
 
@@ -41,7 +48,7 @@ def gap(bound, ref):
     g = (bound - ref) / abs(ref)
     if abs(g) < 1e-6:
         return r"$<\!10^{-6}$"
-    return sci(g)
+    return sci(g, 0)
 
 
 def gain_table(recs):
@@ -49,20 +56,26 @@ def gain_table(recs):
     rows = []
     for n in ns:
         get = lambda meth, order: recs.get(("gain", n, None, meth, order))
-        dense, ts1 = get("dense", n), get("ts1", n)
+        dense, ts1 = get("dense", None), get("ts1", None)
         lifted = [get("push", 2), get("push", 3), get("chord", 2)]
         exact = next((r["exact"] for r in [dense, ts1] + lifted
                       if r and r.get("exact") is not None), None)
         star = ""
-        if exact is None:  # best feasible value at a recovered maximizer
-            vals = [r["f_x_star"] for r in lifted
-                    if r and "failed" not in r and r.get("f_x_star") == r.get("f_x_star")]
+        if exact is None:
+            # best value at a recovered maximizer, also rounded to the nearest
+            # vertex (the maximum is attained at a vertex): a lower estimate
+            vals = []
+            for r in lifted:
+                if r and "failed" not in r and r.get("x_star"):
+                    x = np.clip(np.array(r["x_star"]), -1, 1)
+                    if np.all(np.isfinite(x)):
+                        vals += [objective(x), objective(np.where(x >= 0, 1.0, -1.0))]
             exact = max(vals) if vals else None
             star = r"$^\dagger$"
         dblk = 2 * math.factorial(2 * n) // math.factorial(n) ** 2
         cells = ["%d" % n,
-                 ("%.6g" % exact if exact < 1e5 else sci(exact, 5)) + star if exact else "",
-                 "%d" % dblk if dblk < 1e5 else sci(dblk),
+                 ("%.5g" % exact if exact < 1e5 else sci(exact, 3)) + star if exact else "",
+                 "%d" % dblk if dblk < 1e5 else sci(dblk, 0),
                  secs(dense) if dense else "",
                  "%d" % ts1["max_block"] if ts1 and "failed" not in ts1 else "",
                  secs(ts1) if ts1 else ""]
@@ -72,7 +85,8 @@ def gain_table(recs):
             elif "failed" in r:
                 cells += [secs(r), ""]
             else:
-                cells += [secs(r), gap(r["bound"], exact)]
+                mark = "" if r["status"] == "optimal" else r"$^*$"
+                cells += [secs(r), gap(r["bound"], exact) + mark]
         rows.append(" & ".join(cells) + r" \\")
     blk = {m: next((recs[k]["max_block"] for k in recs
                     if k[0] == "gain" and k[3] == m[0] and k[4] == m[1]

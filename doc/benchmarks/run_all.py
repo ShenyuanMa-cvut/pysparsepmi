@@ -1,8 +1,9 @@
 """Run every benchmark of the paper and append JSON lines to results.jsonl.
 
-Each configuration runs in its own process with a wall-clock limit and a
-resident-memory cap; a configuration that fails is recorded with its reason
-and larger instances of the same method are skipped.
+Each configuration runs in its own process with a time limit (on a monotonic
+clock that does not advance while the machine sleeps) and a resident-memory
+cap; a configuration that fails is recorded with its reason and larger
+instances of the same method are skipped.
 
 Usage: python run_all.py [gain|banded|all] [TIME_LIMIT_S] [MEM_LIMIT_GB]
 """
@@ -32,7 +33,7 @@ def rss_kb(pid):
 
 
 def run(args, key, time_limit, mem_kb):
-    t0 = time.time()
+    t0 = time.monotonic()
     proc = subprocess.Popen([sys.executable] + args, cwd=HERE,
                             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                             universal_newlines=True)
@@ -40,7 +41,7 @@ def run(args, key, time_limit, mem_kb):
     while proc.poll() is None:
         time.sleep(1.0)
         peak = max(peak, rss_kb(proc.pid))
-        if time.time() - t0 > time_limit:
+        if time.monotonic() - t0 > time_limit:
             reason = "time limit"
         elif peak > mem_kb:
             reason = "memory limit"
@@ -57,7 +58,7 @@ def run(args, key, time_limit, mem_kb):
         rec = dict(key)
         rec["failed"] = reason or "error (exit %s)" % proc.returncode
     rec["peak_rss_gb"] = peak / 2**20
-    rec["wall"] = time.time() - t0
+    rec["wall"] = time.monotonic() - t0
     with open(OUT, "a") as f:
         f.write(json.dumps(rec) + "\n")
     print(json.dumps({k: rec.get(k) for k in
