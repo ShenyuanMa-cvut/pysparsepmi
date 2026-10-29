@@ -30,6 +30,7 @@
 \newcommand{\lmax}{\lambda_{\max}}
 \newcommand{\sz}[2]{s(#1,#2)}
 \newcommand{\code}[1]{\texttt{#1}}
+\DeclareMathOperator{\Tr}{Tr}
 
 \begin{document}
 
@@ -380,7 +381,29 @@ Let $d \in \N$. Define the vector of monomials $v_d(x)^{\mathsf{T}} = (1,x_1,\do
 \end{equation}
 similarly $\tau\cdot v_d(x)$ should be understood as entry-wise action of $\tau$ on $v_d(x)$.
 
-Let $R(x)\in\R[x]^{m\times m}$ be a degree $d$ polynomial matrix, there always exists (non-unique) symmetric Gram matrix $S\in \R^{ms(d)\times ms(d)}$ where $R(x) = (v_d(x)\otimes I_m)^{\mathsf{T}} S (v_d(x)\otimes I_m)$ We call $R(x)$ sum of squares if there exists a PSD Gram matrix $S$. Let $R(x)$
+Let $R(x)\in\R[x]^{m\times m}$ be a degree $d$ polynomial matrix, there always exists (non-unique) symmetric Gram matrix $S\in \R^{ms(d)\times ms(d)}$ where $R(x) = (v_d(x)\otimes I_m)^{\mathsf{T}} S (v_d(x)\otimes I_m)$ We call $R(x)$ sum of squares if there exists a PSD Gram matrix $S$. Recall the usual Frobenius inner product $\langle A,B\rangle=\Tr(AB)$ for symmetric matrices, let $R(x)$ be a polynomial matrix, we compute \begin{align}
+    &\tau\cdot\langle R(x),F(x)\rangle=\tau\cdot\langle (v_d(x)\otimes I_m)^{\mathsf{T}} S (v_d(x)\otimes I_m),F(x)\rangle\\
+    =&\tau\cdot\langle S, (v_d(x)\otimes I_m)F(x)(v_d(x)\otimes I_m)^{\mathsf{T}}\rangle\label{eq:RF_1}\\
+    =&\left\langle S, \tau\cdot\left(v_d(x)v_d(x)^{\mathsf{T}} \otimes F(x) \right) \right\rangle\label{eq:RF_2} \\
+    =& \left\langle S, \tau \cdot v_d(x)\tau \cdot v_d(x)^{\mathsf{T}} \otimes \tau \cdot F(x) \right\rangle\label{eq:RF_3}\\
+    =&\left\langle S, \left(\Psi_d(\tau) v_d(x)v_d(x)^{\mathsf{T}}\Psi_d(\tau)^{\mathsf{T}}\right) \otimes \left(\phi(\tau)F(x)\phi(\tau)^{\mathsf{T}}\right) \right\rangle \\
+    =& \left\langle S, \left(\Psi_d(\tau)\otimes \phi(\tau)\right)(v_d(x)v_d(x)^{\mathsf{T}} \otimes F(x))(\Psi_d(\tau)\otimes \phi(\tau))^{\mathsf{T}} \right\rangle \label{eq:RF_4}\\
+    =& \left\langle\left(\Psi_d(\tau)\otimes \phi(\tau)\right)^{\mathsf{T}} S \left(\Psi_d(\tau)\otimes \phi(\tau)\right), v_d(x)v_d(x)^{\mathsf{T}} \otimes F(x) \right\rangle
+\end{align}
+Some comments are in order. Equation \eqref{eq:RF_1} used cyclic property of trace. \eqref{eq:RF_2} used linearity of $\tau\cdot$. \eqref{eq:RF_3} used the fact that the action distributes over product and definition of Kronecker product. \eqref{eq:RF_2} and \eqref{eq:RF_4} used the property $(AC)\otimes (BD)=(A\otimes B)(C\otimes D)$. Now we can give the following reduction theorem. Let's \begin{theorem}
+  Suppose there is an equation of the form $f-t = \sigma_{0}+\langle R(x),F(x)\rangle$ where $t\in\R$, $\sigma_0,R$ are SOS and $\deg(\sigma_0),\deg(R(x)F(x))\leq 2d$, then it's sufficient to take symmetric $\sigma_0$ and $R(x)$.
+\end{theorem}
+\begin{proof}
+  Denote $\delta=\lceil\deg(F)/2\rceil$ and denote by $\Phi_{d}=\Psi_d\otimes \phi$ the tensor product representation. Write $\sigma_0 = v_d(x)^{\mathsf{T}}S_0v_d(x)$ and $R(x) = (v_{d-\delta}(x)\otimes I_m)^{\mathsf{T}} S (v_{d-\delta}(x)\otimes I_m)$ Take the group average $\frac{1}{|G|}\sum_{\tau\in G} \tau\cdot $ of both sides and use symmetry of $f,F$ : \begin{equation}
+    \begin{split}
+    f(x)-t =& \left\langle\frac{1}{|G|}\sum_{\tau\in G}\Psi_{d}(\tau)^{\mathsf{T}}S_0\Psi_{d}(\tau), v_d(x)v_d(x)^{\mathsf{T}}\right\rangle\\
+    &+\left\langle \frac{1}{|G|}\sum_{\tau\in G}\Phi_{d-\delta}(\tau)^{\mathsf{T}}S\Phi_{d-\delta}(\tau), v_d(x)v_d(x)^{\mathsf{T}} \otimes F(x)\right\rangle
+    \end{split}
+  \end{equation}
+  Denote $S_{0,G}=\frac{1}{|G|}\sum_{\tau\in G}\Psi_{d}(\tau)^{\mathsf{T}}S_0\Psi_{d}(\tau)$,$S_{G}=\frac{1}{|G|}\sum_{\tau\in G}\Phi_{d-\delta}(\tau)^{\mathsf{T}}S\Phi_{d-\delta}(\tau)$. We note that if an equation of the form $f-t=\sigma_0+\langle R(x),F(x)\rangle$, then it's sufficient to take $\sigma_0,R$ whose Gram matrix is the group average $S_{0,G},S_{G}$. Indeed, since $S_{0,G},S_G$ are group averages, they satisfy: \begin{equation}
+    \Psi_d(\tau)^{\mathsf{T}}S_{0,G}\Psi_d(\tau) = S_{0,G}, \Phi_{d-\delta}(\tau)^{\mathsf{T}}S_{G}\Phi_{d-\delta}(\tau)=S_{G},\forall \in G.
+  \end{equation}
+\end{proof}
 
 \subsection{Recovering and certifying minimizers}
 \label{sec:moments}
