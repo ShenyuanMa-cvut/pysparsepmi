@@ -5,6 +5,7 @@
 \smartqed
 
 \usepackage{amsmath,amssymb}
+\usepackage{mathtools}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{xcolor}
@@ -19,6 +20,7 @@
 
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\N}{\mathbb{N}}
+\newcommand{\GL}{\mathrm{GL}}
 \newcommand{\Sym}{\mathbb{S}}
 \newcommand{\SOS}{\Sigma}
 \newcommand{\cB}{\mathcal{B}}
@@ -352,6 +354,33 @@ SL-chord uses correlative sparsity in a matrix certificate, which may fail
 to converge \cite[Ex.~5.1]{MillerWangGuo2026}; we rely on the a~posteriori
 certificate of Sect.~\ref{sec:moments} instead. SL-push needs no
 correlative sparsity: its stages are coupled through scalar potentials.
+
+\subsection{Exploiting symmetry under PMI}
+In this subsection we will consider the following optimization problem: \begin{equation}\label{eq:pop_pmi_cons}
+  \min_{x\in\R^{n}} f(x) \text{ s.t. } F(x)\succeq 0.
+\end{equation}
+where $f(x)$ is a polynomial whereas $F(x)\in\R[x]^{m\times m}$ is a symmetric $m\times m$ polynomial matrix. The feasible set consists of points $x\in\R^{n}$ for which the polynomial matrix $F(x)$ is PSD. We assume that the problem \eqref{eq:pop_pmi_cons} enjoys some symmetric property. Let's present formally the necessary definitions.
+
+Let $\tau\in S_n$ be a permutation, we let $\tau$ act on the space of polynomial as following: \begin{equation}
+  \tau\cdot f(x_1,\dots,x_n) \coloneqq f(x_{\tau^{-1}(1)},\dots,x_{\tau^{-1}(n)}).
+\end{equation}
+Under this definition, consider a monomial $x^{\alpha}$ where $\alpha=(\alpha_1,\dots,\alpha_n)$, there is \begin{equation}
+  \tau \cdot x^{\alpha} = x_1^{\alpha_{\tau(1)}}\dots x_n^{\alpha_{\tau(n)}}.
+\end{equation}
+Moreover, consider two polynomials $f,g$, there is $\tau\cdot(fg) = \tau \cdot f \tau \cdot g$. Let $G\leq S_n$ be a subgroup, we say that a polynomial $f$ is $G$-invariant if $\forall \tau\in G, \tau\cdot f = f$. Let $A\in\R[x]^{m\times p}$ be a polynomial matrix, with abuse of notation, $\tau \cdot A(x)$ stands for the entry-wise action of $\tau$ to $A(x)$.
+
+Given \eqref{eq:pop_pmi_cons}, from now on we assume that there exists a subgroup $G\leq S_n$ such that \begin{itemize}
+  \item the polynomial $f$ is $G$-invariant,
+  \item there exists a representation $\phi: G\rightarrow \GL(m)$ such that $\forall \tau\in G, \tau\cdot F(x) = \phi(\tau) F(x) \phi(\tau)^{\mathsf{T}}$.
+\end{itemize}
+Under this assumption, the objective function $f$ and the feasible set $K:=\{x\in\R^{n}:F(x)\succeq 0\}$ are invariant under coordinate permutations of $G$. Note that the polynomial matrix $F$ need not be invariant under $G$. The existence of representation $\phi$ ensures that $K$ is invariant (geometrically under coordinate permutation) without requiring the (algebraic) invariance of $F(x)$ under $G$.
+
+Let $d \in \N$. Define the vector of monomials $v_d(x)^{\mathsf{T}} = (1,x_1,\dots,x_n,\dots,x_n^{d})\in\R[x]^{s(d)}$ where $s(d)$ is the number of monomials upto degree $d$. There exists a representation $\Psi_d: G \rightarrow \GL(s(d))$ where \begin{equation}
+  \forall \tau\in G, \tau\cdot v_d(x) = \Psi_d(\tau) v_d(x),
+\end{equation}
+similarly $\tau\cdot v_d(x)$ should be understood as entry-wise action of $\tau$ on $v_d(x)$.
+
+Let $R(x)\in\R[x]^{m\times m}$ be a degree $d$ polynomial matrix, there always exists (non-unique) symmetric Gram matrix $S\in \R^{ms(d)\times ms(d)}$ where $R(x) = (v_d(x)\otimes I_m)^{\mathsf{T}} S (v_d(x)\otimes I_m)$ We call $R(x)$ sum of squares if there exists a PSD Gram matrix $S$. Let $R(x)$
 
 \subsection{Recovering and certifying minimizers}
 \label{sec:moments}

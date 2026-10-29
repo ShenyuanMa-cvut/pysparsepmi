@@ -8,6 +8,9 @@ dist/
 .venv/
 venv/
 
+# makefile for latex
+doc/makefile
+
 # LaTeX build products
 *.pdf
 *.aux
