@@ -374,7 +374,7 @@ Given \eqref{eq:pop_pmi_cons}, from now on we assume that there exists a subgrou
   \item the polynomial $f$ is $G$-invariant,
   \item there exists a representation $\phi: G\rightarrow \GL(m)$ such that $\forall \tau\in G, \tau\cdot F(x) = \phi(\tau) F(x) \phi(\tau)^{\mathsf{T}}$.
 \end{itemize}
-Under this assumption, the objective function $f$ and the feasible set $K:=\{x\in\R^{n}:F(x)\succeq 0\}$ are invariant under coordinate permutations of $G$. Note that the polynomial matrix $F$ need not be invariant under $G$. The existence of representation $\phi$ ensures that $K$ is invariant (geometrically under coordinate permutation) without requiring the (algebraic) invariance of $F(x)$ under $G$.
+Under this assumption, the objective function $f$ and the feasible set $K:=\{x\in\R^{n}:F(x)\succeq 0\}$ are invariant under coordinate permutations of $G$. Note that the polynomial matrix $F(x)$ need not be invariant under $G$. The existence of representation $\phi$ ensures that $K$ is invariant (geometrically under coordinate permutation) without requiring the (algebraic) invariance of $F(x)$ under $G$.
 
 Let $d \in \N$. Define the vector of monomials $v_d(x)^{\mathsf{T}} = (1,x_1,\dots,x_n,\dots,x_n^{d})\in\R[x]^{s(d)}$ where $s(d)$ is the number of monomials upto degree $d$. There exists a representation $\Psi_d: G \rightarrow \GL(s(d))$ where \begin{equation}
   \forall \tau\in G, \tau\cdot v_d(x) = \Psi_d(\tau) v_d(x),
@@ -400,10 +400,15 @@ Some comments are in order. Equation \eqref{eq:RF_1} used cyclic property of tra
     &+\left\langle \frac{1}{|G|}\sum_{\tau\in G}\Phi_{d-\delta}(\tau)^{\mathsf{T}}S\Phi_{d-\delta}(\tau), v_d(x)v_d(x)^{\mathsf{T}} \otimes F(x)\right\rangle
     \end{split}
   \end{equation}
-  Denote $S_{0,G}=\frac{1}{|G|}\sum_{\tau\in G}\Psi_{d}(\tau)^{\mathsf{T}}S_0\Psi_{d}(\tau)$,$S_{G}=\frac{1}{|G|}\sum_{\tau\in G}\Phi_{d-\delta}(\tau)^{\mathsf{T}}S\Phi_{d-\delta}(\tau)$. We note that if an equation of the form $f-t=\sigma_0+\langle R(x),F(x)\rangle$, then it's sufficient to take $\sigma_0,R$ whose Gram matrix is the group average $S_{0,G},S_{G}$. Indeed, since $S_{0,G},S_G$ are group averages, they satisfy: \begin{equation}
-    \Psi_d(\tau)^{\mathsf{T}}S_{0,G}\Psi_d(\tau) = S_{0,G}, \Phi_{d-\delta}(\tau)^{\mathsf{T}}S_{G}\Phi_{d-\delta}(\tau)=S_{G},\forall \in G.
+  Denote $S_{0,G}=\frac{1}{|G|}\sum_{\tau\in G}\Psi_{d}(\tau)^{\mathsf{T}}S_0\Psi_{d}(\tau)$,$S_{G}=\frac{1}{|G|}\sum_{\tau\in G}\Phi_{d-\delta}(\tau)^{\mathsf{T}}S\Phi_{d-\delta}(\tau)$. By taking group average, we showed that it's sufficient to take $\sigma_0,R$ whose Gram matrix is $S_{0,G},S_{G}$. Now, since $S_{0,G},S_G$ are group averages, they are invariant in the following way: \begin{equation}
+    \Psi_d(\tau)^{\mathsf{T}}S_{0,G}\Psi_d(\tau) = S_{0,G}, \Phi_{d-\delta}(\tau)^{\mathsf{T}}S_{G}\Phi_{d-\delta}(\tau)=S_{G},\forall \tau\in G.
   \end{equation}
+
+  Moreover, if $S_0,S$ are PSD then so are $S_{0,G},S_{G}$ because group average of the form $\frac{1}{|G|}\sum_{\tau\in G} \Psi_{d}(\tau)^\mathsf{T}S_{0,G}\Psi_{d}(\tau)$ preserves the PSD cone.
 \end{proof}
+\begin{remark}
+  The same group averaging procedure can be extended to $G$ being a compact subgroup of $\GL(n)$. The discrete group average can be replaced by averaging against the Haar probability measure over $G$.
+\end{remark}
 
 \subsection{Recovering and certifying minimizers}
 \label{sec:moments}
